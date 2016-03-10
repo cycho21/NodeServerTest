@@ -7,22 +7,21 @@ var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 var url = 'mongodb://localhost:27017/test';
 
-exports.init = function () {
+exports.initThis = function (req, res) {
     mongoClient.connect(url, function(err, db) {
         assert.equal(null, err);
         console.log("Connected correctly to server");
-        insert(db, function(){
-        db.close();
+            console.log("This log");
+            insert(db, function(){
+            console.log("This log");
+            db.close();
+            res.send("");
         });
     });
 }
 
 exports.test = function() {
     console.log("TEST 123");
-}
-
-exports.getDB = function() {
-    return
 }
 
 var insert = function(db, callback) {

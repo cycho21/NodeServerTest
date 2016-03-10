@@ -7,7 +7,7 @@ var fs = require('fs');
 var app = express();
 var dao = require('./DAO');
 var test = dao.test;
-var init = dao.init;
+var init = dao.initThis;
 
 app.use('/files', express.static(__dirname + '/files'));
 
@@ -20,6 +20,11 @@ app.get('/test2', function(req, res) {
     test();
     init();
 });
+
+app.post('/execute', function(req, res){
+    init(req, res);
+    res.redirect('/files/test.html');
+})
 
 app.listen(3000, function () {
     console.log('Example app listening on port 3000!');

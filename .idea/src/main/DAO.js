@@ -7,50 +7,78 @@ var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 var url = 'mongodb://localhost:27017/test';
 
-exports.initThis = function (req, res) {
+exports.queryMongo = function (req, res, string, queryString) {
+
     mongoClient.connect(url, function(err, db) {
         assert.equal(null, err);
-        console.log("Connected correctly to server");
-            console.log("This log");
-            insert(db, function(){
-            console.log("This log");
-            db.close();
-            res.send("");
-        });
+        switch(string) {
+            case "insert":
+                insert(db, function(){
+                    console.log("insert operation");
+                    db.close();
+                    res.send("");
+                }, queryString);
+                break;
+            case "find":
+                findTest(db, function() {
+                    console.log("find operation");
+                    db.close();
+                    res.send("");
+                }, queryString);
+                break;
+            case "drop":
+                dropCollection(db, function() {
+                    db.close();
+                    res.send("");
+                }, queryString);
+                break;
+            case "findAll":
+                findAll(db, function() {
+                    console.log("find All operation")
+                    db.close();
+                    res.send("");
+                });
+                break;
+            default:
+                break;
+        }
     });
 }
 
-exports.test = function() {
-    console.log("TEST 123");
-}
-
-var insert = function(db, callback) {
-    db.collection('restaurants').insertOne( {
-        "address" : {
-            "street" : "2 Avenue",
-            "zipcode" : "10075",
-            "building" : "1480",
-            "coord" : [ -73.9557413, 40.7720266 ]
-        },
-        "borough" : "Manhattan",
-        "cuisine" : "Italian",
-        "grades" : [
-            {
-                "date" : new Date("2014-10-01T00:00:00Z"),
-                "grade" : "A",
-                "score" : 11
-            },
-            {
-                "date" : new Date("2014-01-16T00:00:00Z"),
-                "grade" : "B",
-                "score" : 17
-            }
-        ],
-        "name" : "Vella",
-        "restaurant_id" : "41704620"
-    }, function(err, result) {
+var insert = function(db, callback, string) {
+        db.collection('test').insertOne(JSON.parse(string), function(err, result) {
         assert.equal(err, null);
-        console.log("Inserted a document into the restaurants collection.");
         callback();
+    });
+};
+
+var dropCollection = function(db, callback, string) {
+    db.collection(string).drop( function(err, response) {
+        console.log(response);
+        callback();
+    });
+};
+
+var findAll = function(db, callback) {
+    var cursor = db.collection('test').find();
+    cursor.each(function(err, doc) {
+        assert.equal(err, null);
+        if (doc != null) {
+            console.dir(doc);
+        } else {
+            callback();
+        }
+    });
+};
+
+var findTest = function(db, callback, string) {
+    var cursor =db.collection('test').find(JSON.parse(string));
+    cursor.each(function(err, doc) {
+        assert.equal(err, null);
+        if (doc != null) {
+            console.dir(doc);
+        } else {
+            callback();
+        }
     });
 };

@@ -15,9 +15,10 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-app.get('/', function (req, res) {
+app.post('/execute', function(req, res){
+    dao.queryMongo(req, res, req.body.selectpicker, req.body.query2);
     res.redirect('/files/test.html');
-});
+})
 
 app.listen(3000, function () {
 });
